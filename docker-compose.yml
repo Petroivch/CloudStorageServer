@@ -19,11 +19,11 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/cloudstorage
     depends_on:
       - database
-  #client:
-  #  container_name: frontend-client
-  #  build:
-  #    context: front
-  #    dockerfile: Dockerfile
-  #  image: cloudstoragefront
-  #  ports:
-  #    - "8080:8080"
+  client:
+    container_name: frontend-client
+    build:
+      context: front
+      dockerfile: Dockerfile
+    image: cloudstoragefront
+    ports:
+      - "8080:8080"

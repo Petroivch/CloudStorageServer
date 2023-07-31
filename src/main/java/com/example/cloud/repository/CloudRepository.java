@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Optional.ofNullable;
 
@@ -23,6 +25,7 @@ import static java.util.Optional.ofNullable;
 @Transactional
 @Repository
 public class CloudRepository {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CloudRepository.class);
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
 
@@ -49,6 +52,7 @@ public class CloudRepository {
             cloudFile.setUserId(userId.get());
             return Optional.of(fileRepository.save(cloudFile));
         } else {
+            LOGGER.error("Invalid auth-token");
             throw new StorageException("Invalid auth-token");
         }
     }
@@ -78,6 +82,7 @@ public class CloudRepository {
             cloudFile.ifPresent(file -> file.setName(newFileName));
             return Optional.of(fileRepository.save(Objects.requireNonNull(cloudFile.orElse(null))));
         } else {
+            LOGGER.error("Invalid auth-token");
             throw new StorageException("Invalid auth-token");
         }
     }
@@ -94,6 +99,6 @@ public class CloudRepository {
 
     private Optional<Long> getUserId(String authToken) {
         UserDetails user = tokenStorage.get(authToken.substring(7));
-        return user != null ? ofNullable(Objects.requireNonNull(userRepository.findByEmail(user.getUsername()).orElse(null)).getId()) : Optional.empty();
+        return user != null ? ofNullable(Objects.requireNonNull(userRepository.findByLogin(user.getUsername()).orElse(null)).getId()) : Optional.empty();
     }
 }

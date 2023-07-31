@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class ControllersTests {
-/*
+
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -57,7 +57,7 @@ class ControllersTests {
 
     @Test
     void testLoginSuccess() throws Exception {
-        mockMvc.perform(post(LOGIN).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+        mockMvc.perform(post(LOGIN).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
     }
 
     @Test
@@ -71,6 +71,6 @@ class ControllersTests {
         mockMvc.perform(post(LOGOUT).contentType(MediaType.APPLICATION_JSON)
                 .content(gson.toJson(validJwtRequest))).andExpect(status().is3xxRedirection());
     }
-*/
+
 
 }

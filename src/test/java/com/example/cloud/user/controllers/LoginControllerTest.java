@@ -17,15 +17,15 @@ import java.util.Objects;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class LoginControllerTest {
-/*
+
     @Autowired
     TestRestTemplate template1;
-    public static GenericContainer<?> app = new GenericContainer("app");
+/*    public static GenericContainer<?> app = new GenericContainer("app");
 
     @BeforeAll
     public static void setUp() {
         app.start();
-    }
+    }*/
 
 
     @ParameterizedTest
@@ -36,7 +36,7 @@ public class LoginControllerTest {
         map.put("password", "qwerty");
 
         ResponseEntity<String> response = template1.postForEntity("/login", map, String.class);
-        Assertions.assertEquals(response.getStatusCodeValue(), HttpStatus.BAD_REQUEST.value());
+        Assertions.assertEquals(response.getStatusCodeValue(), HttpStatus.UNAUTHORIZED.value());
     }
 
     void testLoggingWithNullValueMap_POST() {
@@ -78,14 +78,14 @@ public class LoginControllerTest {
 
 
     @ParameterizedTest
-    @ValueSource(strings = {"q", "qw", "qwe", "qwer", "qwert", "", "  ", "fvdvd"})
+    @ValueSource(strings = {"qwvev", "ererr", "qwert", "qqqqq", "zzxcv", "aaaaa", "     ", "fvdvd"})
     void testLoggingWithWrongPassword_POST(String args) {
         HashMap<String, Object> map = new HashMap<>();
         map.put("login", "user@mail.ru");
         map.put("password", args);
 
         ResponseEntity<String> response = template1.postForEntity("/login", map, String.class);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCodeValue());
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
     }
 
     @Test
@@ -105,9 +105,9 @@ public class LoginControllerTest {
         map.put("password", "qwerty");
 
         ResponseEntity<String> response = template1.postForEntity("/login", map, String.class);
-        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).contains("auth-token"));
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).contains("accessToken"));
     }
-*/
+
 
 }
 

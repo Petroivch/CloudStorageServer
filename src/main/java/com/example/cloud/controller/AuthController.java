@@ -35,12 +35,12 @@ public class AuthController {
 		try {
 			Authentication authentication = authManager.authenticate(
 					new UsernamePasswordAuthenticationToken(
-							request.getEmail(), request.getPassword())
+							request.getLogin(), request.getPassword())
 			);
 			
 			User user = (User) authentication.getPrincipal();
 			String accessToken = jwtUtil.generateAccessToken(user);
-			AuthResponse response = new AuthResponse(user.getEmail(), accessToken);
+			AuthResponse response = new AuthResponse(user.getLogin(), accessToken);
 			cloudRepository.login(accessToken, user);
 			return ResponseEntity.ok().body(response);
 			

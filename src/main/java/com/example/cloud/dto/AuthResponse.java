@@ -1,22 +1,22 @@
 package com.example.cloud.dto;
 
 public class AuthResponse {
-	private String email;
+	private String login;
 	private String accessToken;
 
 	public AuthResponse() { }
 	
-	public AuthResponse(String email, String accessToken) {
-		this.email = email;
+	public AuthResponse(String login, String accessToken) {
+		this.login = login;
 		this.accessToken = accessToken;
 	}
 
-	public String getEmail() {
-		return email;
+	public String getLogin() {
+		return login;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
+	public void setLogin(String login) {
+		this.login = login;
 	}
 
 	public String getAccessToken() {

@@ -19,15 +19,15 @@ public class User implements UserDetails {
 	private Long id;
 	
 	@Column(nullable = false, length = 50, unique = true)
-	private String email;
+	private String login;
 	
 	@Column(nullable = false, length = 64)
 	private String password;
 
 	public User() { }
 	
-	public User(String email, String password) {
-		this.email = email;
+	public User(String login, String password) {
+		this.login = login;
 		this.password = password;
 	}
 
@@ -39,12 +39,12 @@ public class User implements UserDetails {
 		this.id = id;
 	}
 
-	public String getEmail() {
-		return email;
+	public String getLogin() {
+		return login;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
+	public void setLogin(String login) {
+		this.login = login;
 	}
 
 	public String getPassword() {
@@ -62,7 +62,7 @@ public class User implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return this.email;
+		return this.login;
 	}
 
 	@Override
