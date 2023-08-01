@@ -20,12 +20,12 @@ public class LoginControllerTest {
 
     @Autowired
     TestRestTemplate template1;
-/*    public static GenericContainer<?> app = new GenericContainer("app");
+    public static GenericContainer<?> app = new GenericContainer("app");
 
     @BeforeAll
     public static void setUp() {
         app.start();
-    }*/
+    }
 
 
     @ParameterizedTest

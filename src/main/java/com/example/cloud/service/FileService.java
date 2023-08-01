@@ -27,8 +27,8 @@ public class FileService {
 		return cloudRepository.getFiles(authToken).orElseThrow(() -> new StorageException("Error getting file list"));
 	}
 
-	public void uploadFile(String authToken, String fileName, MultipartFile file) throws IOException {
-		File cloudFilePOJO = new File(fileName, file.getContentType(), file.getBytes(), file.getSize());
+	public void uploadFile(String authToken, String fileName, File cloudFilePOJO) throws IOException {
+
 		cloudRepository.uploadFile(cloudFilePOJO, authToken).orElseThrow(() -> new StorageException("Couldn't save the file " + fileName));
 	}
 

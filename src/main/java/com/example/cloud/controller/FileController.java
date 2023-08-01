@@ -43,7 +43,10 @@ public class FileController {
         String message = "";
         try {
             //storageService.save(file); //сохраняем файл просто на диске
-            fileService.uploadFile(authToken, file.getOriginalFilename(), file); //сохраняем файл в БД
+            String fileName;
+            fileName = file.getOriginalFilename();
+            File cloudFilePOJO = new File(fileName, file.getContentType(), file.getBytes(), file.getSize());
+            fileService.uploadFile(authToken, file.getOriginalFilename(), cloudFilePOJO); //сохраняем файл в БД
 
             message = "Uploaded the file successfully: " + file.getOriginalFilename();
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
