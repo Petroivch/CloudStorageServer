@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +22,7 @@ import com.example.cloud.entity.User;
 
 @Component
 public class JwtTokenFilter extends OncePerRequestFilter {
+	private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenFilter.class);
 	@Autowired
 	private JwtTokenUtil jwtUtil;
 
@@ -40,6 +43,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 			return;
 		}
 
+		LOGGER.info("do Filter");
 		setAuthenticationContext(token, request);
 		filterChain.doFilter(request, response);
 	}
@@ -47,6 +51,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 	private boolean hasAuthorizationBearer(HttpServletRequest request) {
 		String header = request.getHeader("auth-token");
 		if (ObjectUtils.isEmpty(header) || !header.startsWith("Bearer")) {
+			LOGGER.error("no Bearer string");
 			return false;
 		}
 
@@ -56,6 +61,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 	private String getAccessToken(HttpServletRequest request) {
 		String header = request.getHeader("auth-token");
 		String token = header.split(" ")[1].trim();
+		LOGGER.info("get access token");
 		return token;
 	}
 
@@ -77,7 +83,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
 		userDetails.setId(Long.parseLong(jwtSubject[0]));
 		userDetails.setLogin(jwtSubject[1]);
-
+		LOGGER.info("Getting UserDetails Object");
 		return userDetails;
 	}
 }

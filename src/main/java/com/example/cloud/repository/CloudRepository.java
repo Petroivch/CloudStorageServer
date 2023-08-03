@@ -6,6 +6,8 @@ import com.example.cloud.entity.User;
 import com.example.cloud.exception.StorageException;
 import com.example.cloud.entity.File;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
@@ -15,8 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import static java.util.Optional.ofNullable;
 
@@ -39,10 +40,12 @@ public class CloudRepository {
     private Map<String, UserDetails> tokenStorage = new ConcurrentHashMap<>();
 
     public void login(String authToken, User userPrincipal) {
+        LOGGER.info("Success login");
         tokenStorage.put(authToken, userPrincipal);
     }
 
     public Optional<UserDetails> logout(String authToken) {
+        LOGGER.info("Success logout");
         return ofNullable(tokenStorage.remove(authToken));
     }
 
@@ -50,6 +53,7 @@ public class CloudRepository {
         Optional<Long> userId = getUserId(authToken);
         if (userId.isPresent()) {
             cloudFile.setUserId(userId.get());
+            LOGGER.info("Upload file " + cloudFile.getName() + " successfuly");
             return Optional.of(fileRepository.save(cloudFile));
         } else {
             LOGGER.error("Invalid auth-token");
@@ -60,8 +64,10 @@ public class CloudRepository {
     public void deleteFile(String authToken, String fileName) {
         Optional<Long> userId = getUserId(authToken);
         if (userId.isPresent()) {
+            LOGGER.info("Remove file " + fileName);
             fileRepository.removeByUserIdAndName(userId.get(), fileName);
         } else {
+            LOGGER.error("Invalid auth-token");
             throw new StorageException("Invalid auth-token");
         }
     }
@@ -69,8 +75,10 @@ public class CloudRepository {
     public Optional<File> downloadFile(String authToken, String fileName) {
         Optional<Long> userId = getUserId(authToken);
         if (userId.isPresent()) {
+            LOGGER.info("Download file " + fileName);
             return fileRepository.findByUserIdAndName(userId.get(), fileName);
         } else {
+            LOGGER.error("Invalid auth-token");
             throw new StorageException("Invalid auth-token");
         }
     }
@@ -80,6 +88,7 @@ public class CloudRepository {
         if (userId.isPresent()) {
             Optional<File> cloudFile = fileRepository.findByUserIdAndName(userId.get(), fileName);
             cloudFile.ifPresent(file -> file.setName(newFileName));
+            LOGGER.info("Rename file " + fileName);
             return Optional.of(fileRepository.save(Objects.requireNonNull(cloudFile.orElse(null))));
         } else {
             LOGGER.error("Invalid auth-token");
@@ -91,8 +100,10 @@ public class CloudRepository {
     public Optional<List<File>> getFiles(String authToken) {
         Optional<Long> userId = getUserId(authToken);
         if (userId.isPresent()) {
+            LOGGER.info("Get all files");
             return ofNullable(fileRepository.findAllByUserId(userId.get()));
         } else {
+            LOGGER.error("Invalid auth-token");
             throw new StorageException("Invalid auth-token");
         }
     }
