@@ -37,7 +37,7 @@ public class CloudRepository {
         this.fileRepository = fileRepository;
     }
 
-    private Map<String, UserDetails> tokenStorage = new ConcurrentHashMap<>();
+    public static Map<String, UserDetails> tokenStorage = new ConcurrentHashMap<>();
 
     public void login(String authToken, User userPrincipal) {
         LOGGER.info("Success login");
@@ -49,10 +49,16 @@ public class CloudRepository {
         return ofNullable(tokenStorage.remove(authToken));
     }
 
-    public Optional<File> uploadFile(File cloudFile, String authToken) {
-        Optional<Long> userId = getUserId(authToken);
-        if (userId.isPresent()) {
-            cloudFile.setUserId(userId.get());
+    public Optional<File> uploadFile(File cloudFile) {
+
+        if (!tokenStorage.isEmpty()) {
+            Optional<String> token = tokenStorage.keySet().stream().findFirst();
+            String result = token
+                    .map(Object::toString)
+                    .orElse("");
+            Optional<Long> userId = getUserId((result));
+                cloudFile.setUserId(userId.get());
+
             LOGGER.info("Upload file " + cloudFile.getName() + " successfuly");
             return Optional.of(fileRepository.save(cloudFile));
         } else {
@@ -61,9 +67,14 @@ public class CloudRepository {
         }
     }
 
-    public void deleteFile(String authToken, String fileName) {
-        Optional<Long> userId = getUserId(authToken);
-        if (userId.isPresent()) {
+    public void deleteFile(String fileName) {
+        if (!tokenStorage.isEmpty()) {
+            Optional<String> token = tokenStorage.keySet().stream().findFirst();
+            String result = token
+                    .map(Object::toString)
+                    .orElse("");
+            Optional<Long> userId = getUserId((result));
+
             LOGGER.info("Remove file " + fileName);
             fileRepository.removeByUserIdAndName(userId.get(), fileName);
         } else {
@@ -72,9 +83,14 @@ public class CloudRepository {
         }
     }
 
-    public Optional<File> downloadFile(String authToken, String fileName) {
-        Optional<Long> userId = getUserId(authToken);
-        if (userId.isPresent()) {
+    public Optional<File> downloadFile(String fileName) {
+
+        if (!tokenStorage.isEmpty()) {
+            Optional<String> token = tokenStorage.keySet().stream().findFirst();
+            String result = token
+                    .map(Object::toString)
+                    .orElse("");
+            Optional<Long> userId = getUserId((result));
             LOGGER.info("Download file " + fileName);
             return fileRepository.findByUserIdAndName(userId.get(), fileName);
         } else {
@@ -83,9 +99,13 @@ public class CloudRepository {
         }
     }
 
-    public Optional<File> renameFile(String authToken, String fileName, String newFileName) {
-        Optional<Long> userId = getUserId(authToken);
-        if (userId.isPresent()) {
+    public Optional<File> renameFile(String fileName, String newFileName) {
+        if (!tokenStorage.isEmpty()) {
+            Optional<String> token = tokenStorage.keySet().stream().findFirst();
+            String result = token
+                    .map(Object::toString)
+                    .orElse("");
+            Optional<Long> userId = getUserId((result));
             Optional<File> cloudFile = fileRepository.findByUserIdAndName(userId.get(), fileName);
             cloudFile.ifPresent(file -> file.setName(newFileName));
             LOGGER.info("Rename file " + fileName);
@@ -97,9 +117,14 @@ public class CloudRepository {
     }
 
 
-    public Optional<List<File>> getFiles(String authToken) {
-        Optional<Long> userId = getUserId(authToken);
-        if (userId.isPresent()) {
+    public Optional<List<File>> getFiles() {
+
+        if (!tokenStorage.isEmpty()) {
+            Optional<String> token = tokenStorage.keySet().stream().findFirst();
+            String result = token
+                    .map(Object::toString)
+                    .orElse("");
+            Optional<Long> userId = getUserId((result));
             LOGGER.info("Get all files");
             return ofNullable(fileRepository.findAllByUserId(userId.get()));
         } else {
@@ -109,7 +134,7 @@ public class CloudRepository {
     }
 
     private Optional<Long> getUserId(String authToken) {
-        UserDetails user = tokenStorage.get(authToken.substring(7));
+        UserDetails user = tokenStorage.get(authToken);
         return user != null ? ofNullable(Objects.requireNonNull(userRepository.findByLogin(user.getUsername()).orElse(null)).getId()) : Optional.empty();
     }
 }

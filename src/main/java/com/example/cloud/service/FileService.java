@@ -19,25 +19,25 @@ public class FileService {
 		this.cloudRepository = cloudRepository;
 	}
 
-	public File downloadFile(String authToken, String fileName) {
-		return cloudRepository.downloadFile(authToken, fileName).orElseThrow(() -> new StorageException("Error download file " + fileName));
+	public File downloadFile(String fileName) {
+		return cloudRepository.downloadFile(fileName).orElseThrow(() -> new StorageException("Error download file " + fileName));
 	}
 
-	public List<File> getFiles(String authToken) {
-		return cloudRepository.getFiles(authToken).orElseThrow(() -> new StorageException("Error getting file list"));
+	public List<File> getFiles() {
+		return cloudRepository.getFiles().orElseThrow(() -> new StorageException("Error getting file list"));
 	}
 
-	public void uploadFile(String authToken, String fileName, File cloudFilePOJO) throws IOException {
+	public void uploadFile(String fileName, File cloudFilePOJO) throws IOException {
 
-		cloudRepository.uploadFile(cloudFilePOJO, authToken).orElseThrow(() -> new StorageException("Couldn't save the file " + fileName));
+		cloudRepository.uploadFile(cloudFilePOJO).orElseThrow(() -> new StorageException("Couldn't save the file " + fileName));
 	}
 
-	public void deleteFile(String authToken, String fileName){
-		cloudRepository.deleteFile(authToken,fileName);
+	public void deleteFile(String fileName){
+		cloudRepository.deleteFile(fileName);
 	}
 
-	public void renameFile(String authToken, String fileName, String newFileName) {
-		cloudRepository.renameFile(authToken, fileName, newFileName).orElseThrow(() -> new StorageException("Error edit file " + fileName));
+	public void renameFile(String fileName, String newFileName) {
+		cloudRepository.renameFile(fileName, newFileName).orElseThrow(() -> new StorageException("Error edit file " + fileName));
 	}
 
 }
