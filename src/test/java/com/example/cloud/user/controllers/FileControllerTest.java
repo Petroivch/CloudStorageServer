@@ -1,7 +1,9 @@
 package com.example.cloud.user.controllers;
 
 import com.example.cloud.controller.FileController;
+import com.example.cloud.entity.File;
 import com.example.cloud.entity.User;
+import com.example.cloud.exception.InvalidTokenException;
 import com.example.cloud.repository.CloudRepository;
 import com.example.cloud.repository.FileRepository;
 import com.example.cloud.repository.UserRepository;
@@ -23,28 +25,25 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 public class FileControllerTest {
 
-    @Autowired
-    TestRestTemplate template;
     @InjectMocks
     private FileController fileController;
-    @Autowired
-    AuthenticationManager authManager;
     private String wrong_token = "Bearer wrongtoken";
     private String ok_token = "Bearer token";
     @Mock
     UserRepository userRepository;
+    @Mock
+    FileRepository fileRepository;
 
     @Mock
     private FileService fileService;
-    @InjectMocks
-    @Autowired
+    @Mock
     private static CloudRepository cloudRepository;
 
     private static final String FILE_BODY = "Hello, world";
@@ -58,23 +57,27 @@ public class FileControllerTest {
         public static void setUp() {
             app.start();
         }*/
+    @Test
+    void testListHttpStatusUnauthorized() {
+        settings();
+        try {
+            fileController.getFiles(wrong_token);
+            fail( "My method didn't throw when I expected it to" );
+        } catch (InvalidTokenException invalidTokenException) {
+        }
+    }
+    @Test
+    void testListHttpStatusOk() {
+        settings();
+        assertDoesNotThrow(() -> {
+            fileController.getFiles(ok_token);
+        });
+    }
     public void settings() {
-        fileService = new FileService(cloudRepository);
-        fileController = new FileController(fileService);
-        Authentication authentication = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        "user@mail.ru", "qwerty"));
-        User user = (User) authentication.getPrincipal();
+        User user = new User("user@mail.ru", "qwerty");
         cloudRepository.tokenStorage.put(ok_token.substring(7), user);
     }
 
-    @Test
-    void doWithoutToken_GET() {
-        ResponseEntity<String> response = template.getForEntity("/list", String.class);
-        var expected = HttpStatus.UNAUTHORIZED.value();
-        var actual = response.getStatusCodeValue();
-        assertEquals(expected, actual);
-    }
 
     @Test
     public void testUploadFileHttpStatusUnauthorized() throws IOException {
@@ -83,11 +86,57 @@ public class FileControllerTest {
         assertEquals(HttpStatus.UNAUTHORIZED, actualResult.getStatusCode());
     }
     @Test
-    @ExtendWith(SpringExtension.class)
+    @ExtendWith(MockitoExtension.class)
     public void testUploadFileHttpStatusOk() throws IOException {
         settings();
         var actualResult = fileController.uploadFile(ok_token, MULTIPART_FILE);
 
         assertEquals(HttpStatus.OK, actualResult.getStatusCode());
+    }
+    @Test
+    @ExtendWith(MockitoExtension.class)
+    public void testDownloadFileHttpStatusOk() throws IOException {
+        settings();
+        fileController.uploadFile(ok_token,MULTIPART_FILE);
+        var actualResult = fileController.downloadFile(ok_token, "file1.txt");
+        assertEquals(HttpStatus.OK, actualResult.getStatusCode());
+        fileController.deleteFile(ok_token, "file1.txt");
+    }
+    @Test
+    @ExtendWith(MockitoExtension.class)
+    public void testDownloadFileHttpStatusUnauthorized() throws IOException {
+        settings();
+        var actualResult = fileController.downloadFile(wrong_token, "file1.txt");
+        assertEquals(HttpStatus.UNAUTHORIZED, actualResult.getStatusCode());
+    }
+    @Test
+    @ExtendWith(MockitoExtension.class)
+    public void testDeleteFileHttpStatusUnauthorized() throws IOException {
+        settings();
+        var actualResult = fileController.deleteFile(wrong_token, "file1.txt");
+        assertEquals(HttpStatus.UNAUTHORIZED, actualResult.getStatusCode());
+    }
+    @Test
+    @ExtendWith(MockitoExtension.class)
+    public void testDeleteFileHttpStatusOk() throws IOException {
+        settings();
+        var actualResult = fileController.deleteFile(ok_token, "file1.txt");
+
+        assertEquals(HttpStatus.OK, actualResult.getStatusCode());
+    }
+    @Test
+    @ExtendWith(MockitoExtension.class)
+    public void testEditFileHttpStatusOk() throws IOException {
+        settings();
+        var actualResult = fileController.editFile(ok_token, "file1.txt", "file_edit.txt");
+
+        assertEquals(HttpStatus.OK, actualResult.getStatusCode());
+    }
+    @Test
+    @ExtendWith(MockitoExtension.class)
+    public void testEditFileHttpStatusUnauthorized() throws IOException {
+        settings();
+        var actualResult = fileController.editFile(wrong_token, "file1.txt", "file_edit");
+        assertEquals(HttpStatus.UNAUTHORIZED, actualResult.getStatusCode());
     }
 }
