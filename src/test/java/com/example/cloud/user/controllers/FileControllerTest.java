@@ -8,24 +8,18 @@ import com.example.cloud.repository.CloudRepository;
 import com.example.cloud.repository.FileRepository;
 import com.example.cloud.repository.UserRepository;
 import com.example.cloud.service.FileService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.containers.GenericContainer;
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,17 +43,28 @@ public class FileControllerTest {
     private static final String FILE_BODY = "Hello, world";
     public static final MockMultipartFile MULTIPART_FILE =
             new MockMultipartFile("file", "file1.txt", MediaType.TEXT_PLAIN_VALUE, FILE_BODY.getBytes());
+    public static final File cloudFilePOJO;
+
+    static {
+        try {
+            cloudFilePOJO = new File("file1.txt", MULTIPART_FILE.getContentType(), MULTIPART_FILE.getBytes(), MULTIPART_FILE.getSize());
+            cloudFilePOJO.setUserId(1L);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
-    /*    public static GenericContainer<?> app = new GenericContainer("app");
+    //public static GenericContainer<?> app = new GenericContainer("app");
 
-        @BeforeAll
-        public static void setUp() {
-            app.start();
-        }*/
+        @BeforeEach
+        public void setUp() {
+            //app.start();
+            User user = new User("user@mail.ru", "qwerty");
+            cloudRepository.tokenStorage.put(ok_token.substring(7), user);
+        }
     @Test
     void testListHttpStatusUnauthorized() {
-        settings();
         try {
             fileController.getFiles(wrong_token);
             fail( "My method didn't throw when I expected it to" );
@@ -68,16 +73,10 @@ public class FileControllerTest {
     }
     @Test
     void testListHttpStatusOk() {
-        settings();
         assertDoesNotThrow(() -> {
             fileController.getFiles(ok_token);
         });
     }
-    public void settings() {
-        User user = new User("user@mail.ru", "qwerty");
-        cloudRepository.tokenStorage.put(ok_token.substring(7), user);
-    }
-
 
     @Test
     public void testUploadFileHttpStatusUnauthorized() throws IOException {
@@ -88,16 +87,15 @@ public class FileControllerTest {
     @Test
     @ExtendWith(MockitoExtension.class)
     public void testUploadFileHttpStatusOk() throws IOException {
-        settings();
         var actualResult = fileController.uploadFile(ok_token, MULTIPART_FILE);
-
         assertEquals(HttpStatus.OK, actualResult.getStatusCode());
     }
     @Test
     @ExtendWith(MockitoExtension.class)
     public void testDownloadFileHttpStatusOk() throws IOException {
-        settings();
         fileController.uploadFile(ok_token,MULTIPART_FILE);
+        Mockito.when(fileService.downloadFile("file1.txt")).thenReturn(cloudFilePOJO);
+        //Mockito.when(fileController.downloadFile(ok_token, "file1.txt")).thenReturn();
         var actualResult = fileController.downloadFile(ok_token, "file1.txt");
         assertEquals(HttpStatus.OK, actualResult.getStatusCode());
         fileController.deleteFile(ok_token, "file1.txt");
@@ -105,21 +103,18 @@ public class FileControllerTest {
     @Test
     @ExtendWith(MockitoExtension.class)
     public void testDownloadFileHttpStatusUnauthorized() throws IOException {
-        settings();
         var actualResult = fileController.downloadFile(wrong_token, "file1.txt");
         assertEquals(HttpStatus.UNAUTHORIZED, actualResult.getStatusCode());
     }
     @Test
     @ExtendWith(MockitoExtension.class)
     public void testDeleteFileHttpStatusUnauthorized() throws IOException {
-        settings();
         var actualResult = fileController.deleteFile(wrong_token, "file1.txt");
         assertEquals(HttpStatus.UNAUTHORIZED, actualResult.getStatusCode());
     }
     @Test
     @ExtendWith(MockitoExtension.class)
     public void testDeleteFileHttpStatusOk() throws IOException {
-        settings();
         var actualResult = fileController.deleteFile(ok_token, "file1.txt");
 
         assertEquals(HttpStatus.OK, actualResult.getStatusCode());
@@ -127,7 +122,6 @@ public class FileControllerTest {
     @Test
     @ExtendWith(MockitoExtension.class)
     public void testEditFileHttpStatusOk() throws IOException {
-        settings();
         var actualResult = fileController.editFile(ok_token, "file1.txt", "file_edit.txt");
 
         assertEquals(HttpStatus.OK, actualResult.getStatusCode());
@@ -135,7 +129,6 @@ public class FileControllerTest {
     @Test
     @ExtendWith(MockitoExtension.class)
     public void testEditFileHttpStatusUnauthorized() throws IOException {
-        settings();
         var actualResult = fileController.editFile(wrong_token, "file1.txt", "file_edit");
         assertEquals(HttpStatus.UNAUTHORIZED, actualResult.getStatusCode());
     }
