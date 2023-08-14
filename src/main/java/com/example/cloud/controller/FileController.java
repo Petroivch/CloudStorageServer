@@ -1,12 +1,10 @@
 package com.example.cloud.controller;
 
 import com.example.cloud.entity.File;
-import com.example.cloud.exception.ResponseMessage;
 import com.example.cloud.exception.InvalidTokenException;
+import com.example.cloud.exception.ResponseMessage;
 import com.example.cloud.repository.CloudRepository;
 import com.example.cloud.service.FileService;
-
-import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,7 +26,6 @@ public class FileController {
     private static final String UPLOAD = "/upload";
 
     private final FileService fileService;
-
 
 
     public FileController(FileService fileService) {
@@ -57,7 +54,7 @@ public class FileController {
     }
 
     @GetMapping(FILE)
-    public ResponseEntity<byte[]> downloadFile(@RequestHeader("auth-token") String authToken, @RequestParam("filename") String filename)  {
+    public ResponseEntity<byte[]> downloadFile(@RequestHeader("auth-token") String authToken, @RequestParam("filename") String filename) {
         String message = "";
         if (!CloudRepository.tokenStorage.containsKey(authToken.substring(7))) {
             message = "Invalid auth-token";
@@ -102,12 +99,11 @@ public class FileController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseMessage(message));
         }
         try {
-                fileService.deleteFile(fileName);
-                message = "Deleted the file successfully: " + fileName;
-                return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
-            }
-        catch (Exception e) {
-            message = "Can't delete the file: " + fileName  + ". Error: " + e.getMessage();
+            fileService.deleteFile(fileName);
+            message = "Deleted the file successfully: " + fileName;
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+        } catch (Exception e) {
+            message = "Can't delete the file: " + fileName + ". Error: " + e.getMessage();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
         }
     }
@@ -120,11 +116,11 @@ public class FileController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseMessage(message));
         }
         try {
-                fileService.renameFile(filename, newname);
-                message = "Edit the filename successfully from "+ filename + "to " + newname;
-                return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+            fileService.renameFile(filename, newname);
+            message = "Edit the filename successfully from " + filename + "to " + newname;
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
         } catch (Exception e) {
-            message = "Can't edit the file: " + filename  + ". Error: " + e.getMessage();
+            message = "Can't edit the file: " + filename + ". Error: " + e.getMessage();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
         }
     }

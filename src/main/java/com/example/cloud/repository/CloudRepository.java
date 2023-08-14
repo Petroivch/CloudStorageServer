@@ -1,10 +1,8 @@
 package com.example.cloud.repository;
 
-import javax.transaction.Transactional;
-
+import com.example.cloud.entity.File;
 import com.example.cloud.entity.User;
 import com.example.cloud.exception.StorageException;
-import com.example.cloud.entity.File;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,12 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
 
 import static java.util.Optional.ofNullable;
 
@@ -57,7 +55,7 @@ public class CloudRepository {
                     .map(Object::toString)
                     .orElse("");
             Optional<Long> userId = getUserId((result));
-                cloudFile.setUserId(userId.get());
+            cloudFile.setUserId(userId.get());
 
             LOGGER.info("Upload file " + cloudFile.getName() + " successfuly");
             return Optional.of(fileRepository.save(cloudFile));

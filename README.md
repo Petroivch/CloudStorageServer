@@ -5,7 +5,8 @@
 ### Описание и запуск FRONT
 
 1. Установить nodejs (версия 14.x.x) на компьютер следуя инструкции: https://nodejs.org/ru/download/
-2. Скачать [FRONT](https://github.com/netology-code/jd-homeworks/blob/master/diploma/netology-diplom-frontend) (JavaScript)
+2. Скачать [FRONT](https://github.com/netology-code/jd-homeworks/blob/master/diploma/netology-diplom-frontend) (
+   JavaScript)
 3. Перейти в папку FRONT приложения и все команды для запуска выполнять из нее.
 4. Следуя описанию README.md FRONT проекта запустить nodejs приложение (npm install)
 5. Можно задать url для вызова своего backend сервиса:
@@ -16,7 +17,6 @@
 6. По умолчанию FRONT запускается на порту 8080 и доступен по url в браузере http://localhost:8080
 
 ### _Серверная часть запускается на порту 8090;_
-
 
 ## Запуск приложения
 

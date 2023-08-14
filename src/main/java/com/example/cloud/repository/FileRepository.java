@@ -10,6 +10,8 @@ import java.util.Optional;
 @Repository
 public interface FileRepository extends JpaRepository<File, String> {
     List<File> findAllByUserId(long userId);
+
     Optional<File> findByUserIdAndName(long userId, String name);
+
     void removeByUserIdAndName(long userId, String name);
 }

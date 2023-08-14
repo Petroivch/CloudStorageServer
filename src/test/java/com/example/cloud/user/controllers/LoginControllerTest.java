@@ -1,10 +1,10 @@
 package com.example.cloud.user.controllers;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -21,10 +21,21 @@ public class LoginControllerTest {
     @Autowired
     TestRestTemplate template1;
     public static GenericContainer<?> app = new GenericContainer("app");
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileControllerTest.class);
 
     @BeforeAll
-    public static void setUp() {
+    public static void docSetUp() {
         app.start();
+    }
+
+    @BeforeEach
+    public void setUp() {
+        LOGGER.info("The test is running " + this);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        LOGGER.info("The test is competed " + this);
     }
 
 
