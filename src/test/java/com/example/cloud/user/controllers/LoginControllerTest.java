@@ -21,22 +21,12 @@ public class LoginControllerTest {
     @Autowired
     TestRestTemplate template1;
     public static GenericContainer<?> app = new GenericContainer("app");
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileControllerTest.class);
 
     @BeforeAll
     public static void docSetUp() {
         app.start();
     }
 
-    @BeforeEach
-    public void setUp() {
-        LOGGER.info("The test is running " + this);
-    }
-
-    @AfterEach
-    public void tearDown() {
-        LOGGER.info("The test is competed " + this);
-    }
 
 
     @ParameterizedTest

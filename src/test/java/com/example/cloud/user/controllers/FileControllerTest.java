@@ -32,7 +32,6 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class FileControllerTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileControllerTest.class);
 
     @InjectMocks
     private FileController fileController;
@@ -71,14 +70,8 @@ public class FileControllerTest {
 
     @BeforeEach
     public void setUp() {
-        LOGGER.info("The test is running " + this);
         User user = new User("user@mail.ru", "qwerty");
         cloudRepository.tokenStorage.put(ok_token.substring(7), user);
-    }
-
-    @AfterEach
-    public void tearDown() {
-        LOGGER.info("The test is competed " + this);
     }
 
     @Test
